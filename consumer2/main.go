@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/lightstaff/go-rabbitmq-example/protocol"
 	"github.com/streadway/amqp"
@@ -55,7 +56,7 @@ func main() {
 	defer ch.Close()
 
 	// Exchangeを作って・・・
-	if err := ch.ExchangeDeclare("test", "direct", false, true, false, false, nil); err != nil {
+	if err := ch.ExchangeDeclare("fuga", "direct", false, true, false, false, nil); err != nil {
 		log.Printf("[ERROR] %s", err.Error())
 		return
 	}
@@ -68,7 +69,7 @@ func main() {
 	}
 
 	// QueueにExchangeをBindして・・・
-	if err := ch.QueueBind(q.Name, "", "test", false, nil); err != nil {
+	if err := ch.QueueBind(q.Name, "", "fuga", false, nil); err != nil {
 		log.Printf("[ERROR] %s", err.Error())
 		return
 	}
@@ -97,6 +98,7 @@ func main() {
 					}
 
 					log.Printf("[INFO] success consumed. tag: %d, msg: %v", m.DeliveryTag, &p)
+					time.Sleep(3 * time.Second)
 				}
 			}
 		}
