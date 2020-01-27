@@ -16,6 +16,7 @@ import (
 var (
 	// RabbitMQのURLはパラメータで指定
 	rabbitmqURL = flag.String("rabbitmqUrl", "localhost:5672", "Your RabbtMQ URL")
+	queueName   = "SampleQueue"
 )
 
 func main() {
@@ -54,31 +55,17 @@ func main() {
 	}
 	defer ch.Close()
 
-	// Exchangeを作って・・・
-	if err := ch.ExchangeDeclare("test", "direct", false, true, false, false, nil); err != nil {
+	if err := ch.QueueBind(queueName, "", "sample", false, nil); err != nil {
 		log.Printf("[ERROR] %s", err.Error())
 		return
 	}
 
-	// Queueを作って・・・
-	q, err := ch.QueueDeclare("", false, true, true, false, nil)
+	msgs, err := ch.Consume(queueName, "", true, true, false, false, nil)
 	if err != nil {
 		log.Printf("[ERROR] %s", err.Error())
 		return
 	}
-
-	// QueueにExchangeをBindして・・・
-	if err := ch.QueueBind(q.Name, "", "test", false, nil); err != nil {
-		log.Printf("[ERROR] %s", err.Error())
-		return
-	}
-
-	// Consume!!
-	msgs, err := ch.Consume(q.Name, "", true, true, false, false, nil)
-	if err != nil {
-		log.Printf("[ERROR] %s", err.Error())
-		return
-	}
+	q, err := ch.QueueDeclare(queueName, true, false, false, false, nil)
 
 	// メッセージ受付ルーチン
 	go func() {

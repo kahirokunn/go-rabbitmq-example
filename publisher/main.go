@@ -44,14 +44,8 @@ func main() {
 	}
 	defer ch.Close()
 
-	// Exchangeを作って・・・
-	if err := ch.ExchangeDeclare("test", "direct", false, true, false, false, nil); err != nil {
-		log.Printf("[ERROR] %s", err.Error())
-		return
-	}
-
-	// とりあえずfugaに3回・・・
-	for i := 0; i < 3; i++ {
+	// とりあえずsample exchangeに3回・・・
+	for i := 0; i < 300; i++ {
 		// メッセージ作って・・・
 		p := &protocol.Protocol{
 			Message:   fmt.Sprintf("Hello. No%d", i),
@@ -66,34 +60,7 @@ func main() {
 		}
 
 		// Publish!!
-		if err := ch.Publish("fuga", "", false, false, amqp.Publishing{
-			ContentType: "text/plain",
-			Body:        bytes,
-		}); err != nil {
-			log.Printf("[ERROR] %s", err.Error())
-			continue
-		}
-
-		log.Printf("[INFO] send message. msg: %v", p)
-	}
-
-	// とりあえずtestに1回・・・
-	for i := 0; i < 1; i++ {
-		// メッセージ作って・・・
-		p := &protocol.Protocol{
-			Message:   fmt.Sprintf("Hello. No%d", i),
-			Timestamp: time.Now().UnixNano(),
-		}
-
-		// バイナリ化して・・・
-		bytes, err := json.Marshal(p)
-		if err != nil {
-			log.Printf("[ERROR] %s", err.Error())
-			continue
-		}
-
-		// Publish!!
-		if err := ch.Publish("test", "", false, false, amqp.Publishing{
+		if err := ch.Publish("sample", "", false, false, amqp.Publishing{
 			ContentType: "text/plain",
 			Body:        bytes,
 		}); err != nil {
